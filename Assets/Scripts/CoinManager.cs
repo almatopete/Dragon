@@ -13,11 +13,5 @@ public class CoinManager : MonoBehaviour
         collectedCoins++;
         Debug.Log("Coins collected: " + collectedCoins);
 
-        // Check if all coins are collected
-        if (collectedCoins >= totalCoins)
-        {
-            Debug.Log("All coins collected! Loading next level...");
-            SceneManager.LoadScene(nextLevelName);  // Load the next level
-        }
     }
 }

@@ -114,4 +114,37 @@ public class FirebaseManager : MonoBehaviour
             }
         });
     }
+
+    // Add a public property to access the initialization status
+    public bool IsFirebaseInitialized
+    {
+        get { return firebaseInitialized; }
+    }
+
+    public void ResetPlayerProgressInFirebase()
+{
+    // Reference to the collection and document in Firestore
+    DocumentReference docRef = firestore.Collection("players").Document("John");
+
+    // Data to reset
+    Dictionary<string, object> resetData = new Dictionary<string, object>
+    {
+        { "coins", 0 },
+        { "level", 1 },
+        { "timestamp", FieldValue.ServerTimestamp }
+    };
+
+    // Update Firestore with reset data
+    docRef.SetAsync(resetData).ContinueWithOnMainThread(task => {
+        if (task.IsCompleted)
+        {
+            Debug.Log("Player progress reset in Firestore.");
+        }
+        else
+        {
+            Debug.LogError("Error resetting progress: " + task.Exception);
+        }
+    });
+}
+
 }

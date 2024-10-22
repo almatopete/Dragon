@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class JohnMovement : MonoBehaviour
 {
@@ -26,6 +27,15 @@ public class JohnMovement : MonoBehaviour
     // New variable for start position
     private Vector3 startPosition;
 
+    public Vector3 startScene1 = new Vector3(-0.65f, 0.16f, 0f);
+    public Vector3 startScene2 = new Vector3(-0.48f, 0.72f, 0f);
+
+    private void Awake()
+    {
+        // Ensure John is not destroyed when transitioning scenes
+        DontDestroyOnLoad(gameObject);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +47,12 @@ public class JohnMovement : MonoBehaviour
 
         // Save the initial starting position of John
         startPosition = transform.position;
+
+        // Load progress immediately if Firebase is already initialized
+        if (FirebaseManager.Instance != null && FirebaseManager.Instance.IsFirebaseInitialized)
+        {
+            OnFirebaseInitialized();
+        }
         
     }
 
@@ -141,9 +157,6 @@ public class JohnMovement : MonoBehaviour
     {
         Level++;
         Debug.Log($"Nivel completado: {Level}");
-
-        // Guardar progreso cuando se completa un nivel
-        FirebaseManager.Instance.SavePlayerProgress(Coins, Level);
     }
 
     private void GameOver()
@@ -163,6 +176,9 @@ public class JohnMovement : MonoBehaviour
         // Optionally, if there is a freeze on movement or animations, reset those as well
         Horizontal = 0f;
 
+        Coins = 0;
+        Level =1;
+
         Grounded=false;
 
         Debug.Log("Player reset to start position.");
@@ -170,4 +186,52 @@ public class JohnMovement : MonoBehaviour
         // Reset velocity to ensure smooth repositioning
         Rigidbody2D.velocity = Vector2.zero;
     }
+
+    public void movePlayer() {
+                   // Set John's starting position based on the current scene
+        switch (SceneManager.GetActiveScene().name)
+        {
+            case "SampleScene":  // Replace with your actual scene names
+                startPosition = startScene1;
+                break;
+            case "Scene2":  // Replace with your actual scene names
+                startPosition = startScene2;
+                break;
+            default:
+                startPosition = transform.position;  // Use the current position if the scene is not recognized
+                break;
+                
+        }
+        transform.position = startPosition;
+
+    }
+
+    public void ResetPlayerProgress()
+{
+    // Reset coins and level locally
+    Coins = 0;
+    Level = 1;
+
+    // Save the reset state to Firebase
+    FirebaseManager.Instance.ResetPlayerProgressInFirebase();
+
+    Debug.Log("Player progress has been reset.");
+}
+
+
+    public int GetCoins()
+    {
+        return Coins;
+    }
+
+    public int GetLevel()
+    {
+        return Level;
+    }
+
+    private void OnApplicationQuit()
+{
+    ResetPlayerProgress();
+}
+
 }

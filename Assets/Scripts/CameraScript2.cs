@@ -10,6 +10,20 @@ public class CameraScript2 : MonoBehaviour
     public float minY = -20f;  // Optional: Minimum Y position to prevent the camera from going too low
     public float maxY = 20f;  // Optional: Maximum Y position to prevent the camera from going too high
 
+    public float smoothSpeed = 0.125f;  // Speed at which the camera smooths its movement
+    public Vector3 offset;  // Offset to position the camera relative to John
+
+    private void Start()
+    {
+        // Try to find John if it's not assigned in the Inspector
+        if (John == null)
+        {
+            John = GameObject.FindWithTag("Player");  // Ensure John has the "Player" tag
+        }
+    }
+
+
+
     // Update is called once per frame
     void Update()
     {

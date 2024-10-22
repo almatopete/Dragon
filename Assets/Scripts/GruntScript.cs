@@ -11,6 +11,14 @@ public class GruntScript : MonoBehaviour
 
     private int Health = 3;
 
+  private void Start()
+    {
+        // Try to find John if it's not assigned in the Inspector
+        if (John == null)
+        {
+            John = GameObject.FindWithTag("Player");  // Ensure John has the "Player" tag
+        }
+    }
 
     private void Update ()
 
