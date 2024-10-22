@@ -20,12 +20,41 @@ public class JohnMovement : MonoBehaviour
 
     private int Health = 5;
 
+    private int Coins = 0;  // Monedas obtenidas
+    private int Level = 1;  // Nivel actual
+
+    // New variable for start position
+    private Vector3 startPosition;
+
     // Start is called before the first frame update
     void Start()
     {
         Rigidbody2D = GetComponent<Rigidbody2D>();
         Animator = GetComponent <Animator>();
+
+           // Subscribe to the Firebase initialization event
+        FirebaseManager.OnFirebaseInitialized += OnFirebaseInitialized;
+
+        // Save the initial starting position of John
+        startPosition = transform.position;
         
+    }
+
+        // This method will be called when Firebase is ready
+    private void OnFirebaseInitialized()
+    {
+        // Load the player progress after Firebase is initialized
+        FirebaseManager.Instance.LoadPlayerProgress((loadedCoins, loadedLevel) => {
+            Coins = loadedCoins;
+            Level = loadedLevel;
+            Debug.Log($"Progreso cargado: {Coins} monedas, nivel {Level}");
+        });
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from the event when the object is destroyed
+        FirebaseManager.OnFirebaseInitialized -= OnFirebaseInitialized;
     }
 
     // Update is called once per frame
@@ -55,6 +84,13 @@ public class JohnMovement : MonoBehaviour
             Shoot();
             LastShoot = Time.time; 
         }
+
+        // Check if John has fallen below a certain point (e.g., Y = -10)
+        if (transform.position.y < -3f)
+        {
+            GameOver();  // Trigger game over when falling out of the map
+            ResetPlayer();
+        }
     }
 
      private void Jump()
@@ -82,6 +118,56 @@ public class JohnMovement : MonoBehaviour
     public void Hit ()
     {
         Health = Health -1;
-        if (Health == 0) Destroy (gameObject);
+        if (Health == 0 || Health <= 0) {
+            Destroy(gameObject);
+            ResetPlayer();
+            GameOver();
+            
+        } 
+    }
+
+    // Método para agregar monedas
+    public void AddCoin()
+    {
+        Coins++;
+        Debug.Log($"Monedas: {Coins}");
+
+        // Guardar progreso después de recoger monedas
+        FirebaseManager.Instance.SavePlayerProgress(Coins, Level);
+    }
+
+    // Método para completar un nivel
+    public void CompleteLevel()
+    {
+        Level++;
+        Debug.Log($"Nivel completado: {Level}");
+
+        // Guardar progreso cuando se completa un nivel
+        FirebaseManager.Instance.SavePlayerProgress(Coins, Level);
+    }
+
+    private void GameOver()
+    {
+        // Call Game Over manager to trigger the Game Over screen
+        GameOverManager.Instance.TriggerGameOver();
+    }
+
+    // Reset player to the start position and restore health
+    private void ResetPlayer()
+    {
+        // Set position to the initial start position
+        transform.position = startPosition;
+
+        // Optionally reset health to max or some default value
+        Health = 5;
+        // Optionally, if there is a freeze on movement or animations, reset those as well
+        Horizontal = 0f;
+
+        Grounded=false;
+
+        Debug.Log("Player reset to start position.");
+
+        // Reset velocity to ensure smooth repositioning
+        Rigidbody2D.velocity = Vector2.zero;
     }
 }

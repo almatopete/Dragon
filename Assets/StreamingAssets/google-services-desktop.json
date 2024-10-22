@@ -1,0 +1,31 @@
+{
+  "project_info": {
+    "project_number": "548045833980",
+    "project_id": "dragon1987-aa578",
+    "storage_bucket": "dragon1987-aa578.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:548045833980:ios:0d10ef913d275e2017b979",
+        "android_client_info": {
+          "package_name": "dragon.app"
+        }
+      },
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9PMeID2FM-_qj8K79nzYnY5vAjujRjxM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 0
+        },
+        "appinvite_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
