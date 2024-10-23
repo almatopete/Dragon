@@ -29,7 +29,7 @@ public class GameOverManager : MonoBehaviour
     {
         // Show the Game Over UI
         gameOverUI.SetActive(true);
-
+       FirebaseManager.Instance.ResetPlayerProgressInFirebase();
         // Optionally, you can stop time to pause the game
         Time.timeScale = 0f; // Pauses the game
     }

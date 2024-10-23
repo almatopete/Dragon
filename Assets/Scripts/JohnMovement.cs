@@ -30,6 +30,9 @@ public class JohnMovement : MonoBehaviour
     public Vector3 startScene1 = new Vector3(-0.65f, 0.16f, 0f);
     public Vector3 startScene2 = new Vector3(-0.48f, 0.72f, 0f);
 
+    private UIManager uiManager;
+
+
     private void Awake()
     {
         // Ensure John is not destroyed when transitioning scenes
@@ -53,6 +56,13 @@ public class JohnMovement : MonoBehaviour
         {
             OnFirebaseInitialized();
         }
+
+        // Reference to UIManager in the scene
+    uiManager = FindObjectOfType<UIManager>();
+
+    // Update the UI with initial values
+    uiManager.UpdateCoins(Coins);
+    uiManager.UpdateLevel(Level);
         
     }
 
@@ -135,7 +145,6 @@ public class JohnMovement : MonoBehaviour
     {
         Health = Health -1;
         if (Health == 0 || Health <= 0) {
-            Destroy(gameObject);
             ResetPlayer();
             GameOver();
             
@@ -148,6 +157,7 @@ public class JohnMovement : MonoBehaviour
         Coins++;
         Debug.Log($"Monedas: {Coins}");
 
+        uiManager.UpdateCoins(Coins);
         // Guardar progreso después de recoger monedas
         FirebaseManager.Instance.SavePlayerProgress(Coins, Level);
     }
@@ -156,6 +166,8 @@ public class JohnMovement : MonoBehaviour
     public void CompleteLevel()
     {
         Level++;
+        // Update the UI when a level is completed
+        uiManager.UpdateLevel(Level);
         Debug.Log($"Nivel completado: {Level}");
     }
 
@@ -168,6 +180,10 @@ public class JohnMovement : MonoBehaviour
     // Reset player to the start position and restore health
     private void ResetPlayer()
     {
+
+          if (SceneManager.GetActiveScene().name == "SampleScene")
+        { Destroy(gameObject); 
+        }
         // Set position to the initial start position
         transform.position = startPosition;
 
@@ -185,6 +201,8 @@ public class JohnMovement : MonoBehaviour
 
         // Reset velocity to ensure smooth repositioning
         Rigidbody2D.velocity = Vector2.zero;
+        ResetPlayerProgress();
+        
     }
 
     public void movePlayer() {
